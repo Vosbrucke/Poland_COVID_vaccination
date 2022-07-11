@@ -1,0 +1,70 @@
+---
+title: "Code_visualizations"
+author: "Szymon Lisowski"
+date: "7/11/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+``` {r}
+df <- read_csv("/Users/mr.fox/Github/COVID_wg_powiatow/Processed_data/Zakażenia_wg_powiatów.csv") %>% select(-1)
+
+df <- df %>% arrange(teryt, stan_rekordu_na)
+```
+
+# Visualization for the whole country
+
+```{r}
+library(plotly)
+library(forcats)
+
+p <- df %>% filter(wojewodztwo == "Cały kraj") %>%
+ggplot(aes(stan_rekordu_na, liczba_nowych_zakazen)) +
+  geom_line(color = "lightgrey", alpha = 0.5, size = 0.5) +
+  geom_smooth(method = "loess", span = 0.1, se = FALSE, color = "black", size = 0.5) +
+  theme_classic() +
+  labs(y = NULL, x = NULL, title = "Covid 19 infections are less common in warmer periods", subtitle = "Daily recorded infections numbers in Poland")
+
+ggplotly(p)
+```
+
+# Visualizing the top and bottom counties over time. 
+
+``` {r}
+top_df <- df %>%
+  filter(powiat_miasto != "Cały kraj") %>%
+  dplyr::group_by(powiat_miasto) %>%
+  dplyr::summarize(suma = sum(liczba_nowych_zakazen)) %>%
+  arrange(desc(suma)) %>%
+  slice_head(n = 10)
+
+bottom_df <- df %>%
+  filter(powiat_miasto != "Cały kraj") %>%
+  dplyr::group_by(powiat_miasto) %>%
+  dplyr::summarize(suma = sum(liczba_nowych_zakazen)) %>%
+  arrange(desc(suma)) %>%
+  slice_tail(n = 10)
+
+top <- rbind(top_df, bottom_df)
+```
+
+```{r}
+ggplot(top_df, aes(x = suma, y = forcats::fct_reorder(powiat_miasto, suma))) + 
+  geom_point() +
+  theme_classic() +
+  labs(y = NULL, x = NULL)
+
+ggplot(bottom_df, aes(x = suma, y = forcats::fct_reorder(powiat_miasto, suma))) + 
+  geom_point() +
+  theme_classic() +
+  labs(y = NULL, x = NULL)
+
+ggplot(top, aes(x = suma, y = forcats::fct_reorder(powiat_miasto, suma))) + 
+  geom_point() +
+  theme_classic() +
+  labs(y = NULL, x = NULL)
+```
+
