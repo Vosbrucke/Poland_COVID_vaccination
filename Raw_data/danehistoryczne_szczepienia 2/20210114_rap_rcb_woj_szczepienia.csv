@@ -1,0 +1,19 @@
+wojewodztwo;liczba_szczepien_ogolem;liczba_szczepien_dziennie;dawka_2_ogolem;dawka_2_dziennie;teryt
+inne_puste_woj;0;0;0;0;
+dolnośląskie;33884;4776;2;0;t02
+kujawsko-pomorskie;19038;2432;0;0;t04
+lubelskie;19776;3303;1;0;t06
+lubuskie;7388;1120;0;0;t08
+łódzkie;25949;3311;227;0;t10
+małopolskie;27459;4297;2;0;t12
+mazowieckie;56838;9845;0;0;t14
+opolskie;10118;1203;1;0;t16
+podkarpackie;12877;1812;1;0;t18
+podlaskie;10406;1237;0;0;t20
+pomorskie;25334;2928;1;0;t22
+śląskie;41226;6225;1;1;t24
+świętokrzyskie;10256;1458;0;0;t26
+warmińsko-mazurskie;14754;2124;0;0;t28
+wielkopolskie;32363;4463;2;0;t30
+zachodniopomorskie;16820;2351;0;0;t32
+cały kraj;364486;52885;238;1;t00

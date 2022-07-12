@@ -18,17 +18,40 @@ df <- df %>% arrange(teryt, stan_rekordu_na)
 # Visualization for the whole country
 
 ```{r}
+library(tidyverse)
 library(plotly)
 library(forcats)
+library(ggplot2)
+library(lubridate)
+library(ggtext)
+library(ggprism)
+
+d <- seq.Date(floor_date(min(df$stan_rekordu_na), "month"), ceiling_date(max(df$stan_rekordu_na), "month"), "quarter")
+
+seq.Date(floor_date(min(df$stan_rekordu_na), "month"), ceiling_date(max(df$stan_rekordu_na), "month"), by = "quarter")
+
+custom_theme <-  theme(axis.line.x = element_line(color = "black"),
+        axis.ticks.length.y = unit(0, units = "mm"),
+        axis.ticks.length.x = unit(2, units = "mm"),
+        panel.background = element_rect(fill = "white"),
+        panel.grid.major.y = element_line(color = "grey"),
+        panel.grid.major.x = element_blank(),
+        plot.title = element_markdown(face = "bold"),
+        plot.subtitle = element_markdown(size = 10, color = "#333333"),
+        axis.text.y = element_text(color = "#333333")
+        )
 
 p <- df %>% filter(wojewodztwo == "Cały kraj") %>%
 ggplot(aes(stan_rekordu_na, liczba_nowych_zakazen)) +
-  geom_line(color = "lightgrey", alpha = 0.5, size = 0.5) +
-  geom_smooth(method = "loess", span = 0.1, se = FALSE, color = "black", size = 0.5) +
-  theme_classic() +
-  labs(y = NULL, x = NULL, title = "Covid 19 infections are less common in warmer periods", subtitle = "Daily recorded infections numbers in Poland")
+  geom_line(color = "lightblue", alpha = 0.3, size = 0.5) +
+  geom_smooth(method = "loess", span = 0.1, se = FALSE, color = "darkblue", size = 0.8) +
+  scale_x_date(date_breaks = "3 months", date_labels = "%b %Y") +
+  scale_y_continuous(limits = c(0,NA), expand = c(0,0)) +
+  labs(y = NULL, x = NULL, title = "**Covid 19 infections fade in warmer periods**", subtitle = "<span style='color:#01178B;'>*Smoothed*</span> daily recorded infections numbers in Poland") +
+  # What the gas price <span style='color:#AC2B2D;'>**should be**</span> based on brent oil price changes <span style='color:#111111;'>vs </span>**actual prices**
+  custom_theme
 
-ggplotly(p)
+ggsave("Covid 19 infections fade in warmer periods.png", p, path = "/Users/mr.fox/Github/COVID_wg_powiatow/Processed_data", dpi = 900, width = 20, height = 15, units = "cm")  
 ```
 
 # Visualizing the top and bottom counties over time. 
@@ -52,10 +75,21 @@ top <- rbind(top_df, bottom_df)
 ```
 
 ```{r}
-ggplot(top_df, aes(x = suma, y = forcats::fct_reorder(powiat_miasto, suma))) + 
-  geom_point() +
-  theme_classic() +
-  labs(y = NULL, x = NULL)
+ggplot(top_df, aes(x = suma / 100, y = forcats::fct_reorder(powiat_miasto, suma))) + 
+  geom_col(width = 0.2, fill = "darkblue", color = "darkblue") +
+  labs(y = NULL, x = NULL, title = "**The most Covid 19 infections occured in cities with one exception in poznański county**", subtitle = "Sum of infection numbers in thousand between 2020-11-23 to 2022-05-19") + 
+  scale_x_continuous(guide = "prism_offset", limits = c(0,4000)) +
+  #ggtitle("**The most Covid 19 infections occured in cities with one exception on poznański county**") +
+  custom_theme + 
+  theme(
+    panel.grid.major.y = element_blank(),
+    panel.grid.major.x = element_line(color = "lightgrey", linetype = 3),
+    axis.text.y = element_text(margin = margin(r = -22)),
+    plot.title = element_markdown(hjust = 0.235),
+    plot.subtitle = element_markdown(hjust = 0.1)
+  )
+
+ggsave("Covid 19 infections by top counties.png", path = "/Users/mr.fox/Github/COVID_wg_powiatow/Processed_data", dpi = 900, width = 25, height = 13, unit = "cm")
 
 ggplot(bottom_df, aes(x = suma, y = forcats::fct_reorder(powiat_miasto, suma))) + 
   geom_point() +
@@ -66,5 +100,102 @@ ggplot(top, aes(x = suma, y = forcats::fct_reorder(powiat_miasto, suma))) +
   geom_point() +
   theme_classic() +
   labs(y = NULL, x = NULL)
+```
+
+```{r}
+df_weekdays <- df %>%
+  mutate(weekday = wday(stan_rekordu_na, week_start = getOption("lubridate.week.start", 1))) %>%
+  filter(powiat_miasto == "Cały kraj")
+
+df_weekdays_on <- df_weekdays %>%
+  filter(!weekday %in% c(6,7))
+
+df_weekdays_off <- df_weekdays %>%
+    filter(weekday %in% c(6,7))
+
+p1 <- ggplot() +
+  geom_col(df_weekdays_on, mapping = aes(stan_rekordu_na, liczba_nowych_zakazen), width = 1, fill = "darkblue", position = position_dodge(width = 0.5)) +
+  geom_col(df_weekdays_off, mapping = aes(stan_rekordu_na, liczba_nowych_zakazen), width = 1, fill = "#B3BBDA", position = position_dodge(width = 0.5)) +
+  scale_x_date(date_breaks = "3 months", date_labels = "%b %Y") +
+  coord_cartesian(xlim = c(as.Date("2020-11-20"), as.Date("2022-05-22")), expand = c(0,0)) +
+  scale_y_continuous(limits = c(0,NA), expand = c(0,0)) +
+  # scale_x_date(limits = c(as.Date("2020-11-20"), as.Date("2022-05-22")), expand = c(0,0)) +
+  # scale_y_continuous() +
+  labs(y = NULL, x = NULL, title ="There are less Covid 19 verifications on <span style='color:#B3BBDA;'>weekends</span>", subtitle = "Daily recorded infection numbers in Poland") +
+  custom_theme 
+
+p1
+
+ggplotly(p1)
+
+ggsave("There are less Covid 19 verifications on weekends.png", path = "/Users/mr.fox/Github/COVID_wg_powiatow/Processed_data", dpi = 900, width = 45, height = 13, unit = "cm")
+```
+
+```{r}
+t <- df %>% filter(powiat_miasto == "Cały kraj")
+
+z <- df %>% mutate(test = liczba_nowych_zakazen_na_10_tys_mieszkancow / t$liczba_nowych_zakazen_na_10_tys_mieszkancow)
+
+ggplot(z %>% filter(powiat_miasto != "Cały kraj"), aes(x = stan_rekordu_na, y = test, color  = wojewodztwo)) +
+  geom_point(size = 0.1, alpha = 0.3) 
+  geom_col(position = position_fill(), width = 1)
+
+colnames(df)
+```
+
+```{r}
+p <- df %>% filter(wojewodztwo == "Cały kraj") %>%
+ggplot() +
+  geom_line(aes(x = stan_rekordu_na, y = liczba_nowych_zakazen), color = "lightblue", alpha = 0.3, size = 0.5) +
+  geom_smooth(aes(x = stan_rekordu_na, y = liczba_nowych_zakazen), method = "loess", span = 0.1, se = FALSE, color = "darkblue", size = 0.8) +
+  geom_line(aes(x = stan_rekordu_na, y = liczba_wykonanych_testow), color = "red", alpha = 0.3, size = 0.5) +
+  geom_smooth(mapping = aes(y = liczba_wykonanych_testow, x= stan_rekordu_na), method = "loess", span = 0.1, se = FALSE, color = "darkred", size = 0.8) +
+  scale_x_date(date_breaks = "3 months", date_labels = "%b %Y") +
+  scale_y_continuous(limits = c(0,NA), expand = c(0,0)) +
+  labs(y = NULL, x = NULL, title = "**Covid 19 infections fade in warmer periods**", subtitle = "<span style='color:#01178B;'>*Smoothed*</span> daily recorded infections numbers in Poland") +
+  # What the gas price <span style='color:#AC2B2D;'>**should be**</span> based on brent oil price changes <span style='color:#111111;'>vs </span>**actual prices**
+  custom_theme
+
+p
+```
+
+
+```{r}
+#O ile więcej testów się robiło vs zakażeń
+# Na każdego 1 zakażonego przypadało x testów
+
+p <- df %>% filter(wojewodztwo == "Cały kraj") %>%
+ggplot() +
+  geom_line(aes(x = stan_rekordu_na, y = liczba_wykonanych_testow / liczba_nowych_zakazen), color = "red", alpha = 0.1, size = 0.5) +
+  geom_smooth(aes(x = stan_rekordu_na, y = liczba_wykonanych_testow / liczba_nowych_zakazen), method = "loess", span = 0.1, se = FALSE, color = "darkred", size = 0.8) +
+  # geom_line(aes(x = stan_rekordu_na, y = liczba_wykonanych_testow), alpha = 0.3, size = 0.5) +
+  # geom_smooth(mapping = aes(y = liczba_wykonanych_testow, x= stan_rekordu_na), method = "loess", span = 0.1, se = FALSE, color = "darkred", size = 0.8) +
+  scale_x_date(date_breaks = "3 months", date_labels = "%b %Y") +
+  scale_y_continuous(limits = c(0,NA), expand = c(0,0)) +
+  coord_cartesian(ylim = c(0, 40)) +
+  labs(y = NULL, x = NULL, title = "", subtitle = "") +
+  # What the gas price <span style='color:#AC2B2D;'>**should be**</span> based on brent oil price changes <span style='color:#111111;'>vs </span>**actual prices** 
+  custom_theme
+
+p
+```
+
+```{r}
+# Procent testów pozytywnych do negatywnych
+
+p <- df %>% filter(wojewodztwo == "Cały kraj") %>%
+ggplot() +
+  geom_line(aes(x = stan_rekordu_na, y = 100 * liczba_testow_z_wynikiem_pozytywnym / liczba_wykonanych_testow), color = "red", alpha = 0.1, size = 0.5) +
+  geom_smooth(aes(x = stan_rekordu_na, y = 100 * liczba_testow_z_wynikiem_pozytywnym / liczba_wykonanych_testow), method = "loess", span = 0.1, se = FALSE, color = "darkred", size = 0.8) +
+  # geom_line(aes(x = stan_rekordu_na, y = liczba_wykonanych_testow), alpha = 0.3, size = 0.5) +
+  # geom_smooth(mapping = aes(y = liczba_wykonanych_testow, x= stan_rekordu_na), method = "loess", span = 0.1, se = FALSE, color = "darkred", size = 0.8) +
+  scale_x_date(date_breaks = "3 months", date_labels = "%b %Y") +
+  scale_y_continuous(limits = c(0,NA), expand = c(0,0)) +
+  #coord_cartesian(ylim = c(0, 40)) +
+  labs(y = NULL, x = NULL, title = "", subtitle = "") +
+  # What the gas price <span style='color:#AC2B2D;'>**should be**</span> based on brent oil price changes <span style='color:#111111;'>vs </span>**actual prices** 
+  custom_theme
+
+p
 ```
 
