@@ -7,71 +7,97 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "/Users/mr.fox/Github/COVID_wg_powiatow/Raw_data/danehistorycznepowiaty_szczepienia/")
 ```
 
-## Wczytywanie danych historycznych szczepień
+## Loading necessary packages
 
 ```{r}
-files_1 <- list.files(path = "/Users/mr.fox/Github/COVID_wg_powiatow/Raw_data/danehistoryczne_szczepienia 2", pattern = "rcb_pow_szczepienia.csv")
+library(plyr)
+library(dplyr)
+library(readr)
+library(tidyverse)
+library(purrr)
+library(downloader)
+```
 
-setwd("/Users/mr.fox/Github/COVID_wg_powiatow/Raw_data/danehistoryczne_szczepienia 2")
+## Pobieranie danych historycznych dla szczepień
 
+```{r}
+url <- "https://arcgis.com/sharing/rest/content/items/b860f2797f7f4da789cb6fccf6bd5bc7/data"
+
+download(url, dest="/Users/mr.fox/Github/COVID_wg_powiatow/Raw_data/danehistorycznepowiaty_szczepienia/dataset.zip", mode="wb") 
+unzip ("/Users/mr.fox/Github/COVID_wg_powiatow/Raw_data/danehistorycznepowiaty_szczepienia/dataset.zip", exdir = "./")
+
+files_1 <- list.files(path = "/Users/mr.fox/Github/COVID_wg_powiatow/Raw_data/danehistorycznepowiaty_szczepienia", pattern = "rcb_pow_szczepienia.csv")
+```
+
+## Wczytywanie danych historycznych dla szczepień
+
+``` {r}
 df_no_date <- ldply(.data = files_1, .fun = function(i) {read.csv(i, header = TRUE, sep = ";", dec = ",", stringsAsFactors = FALSE, na.strings = c("", "NA")) })
 
-date_column <- data_frame(stan_rekordu_na = rep(seq.Date(as.Date("2020-12-24")-1, as.Date("2021-01-27")-1, by = "day"), 381)) %>% arrange(stan_rekordu_na)
+model <- read.csv("/Users/mr.fox/Github/COVID_wg_powiatow/Raw_data/model.csv") %>% select(-1)
 
-df_date_1 <- cbind(df_no_date, date_column)
+df_no_date_cor <- model %>%
+  right_join(df_no_date, by =  "teryt") %>%
+  select(-c(4:5)) %>%
+  filter(teryt != "t00") %>%
+  dplyr::mutate(across(everything(), ~ifelse(is.na(.), 0, .)),
+    liczba_szczepien_ogolem = liczba_szczepien_ogolem + liczba_szczepien_ogolnie) %>%
+  dplyr::rename(wojewodztwo = wojewodztwo.x, 
+                powiat_miasto = powiat_miasto.x) %>%
+  select(-liczba_szczepien_ogolnie)
 
-write.csv(df_date_1, "/Users/mr.fox/Github/COVID_wg_powiatow/Processed_data/szczepienia.csv")
+date_column <- data_frame(stan_rekordu_na = rep(seq.Date(as.Date("2021-01-13"), as.Date("2022-05-19"), by = "day"), 381)) 
+
+df_date <- cbind(df_no_date_cor, date_column)
+
+write.csv(df_date, "/Users/mr.fox/Github/COVID_wg_powiatow/Processed_data/szczepienia.csv")
 ```
 
 ## Wczytywanie szczegółowych danych historycznych szczepień dla powiatów oraz gmin.
 
 ```{r}
-szczepienia <- read.csv("/Users/mr.fox/Desktop/Szczepienia.csv", sep = ";", dec = ",", header = TRUE, check.names = FALSE)
+# I chose 390th line as this is where I found the data for counties. It is not perfect solution as any changes will break the whole code chunk. I decided to use it nevertheless as the data seems to be no longer updated after the 20th of March 2022.
+page = readLines("https://www.gov.pl/web/szczepienia-gmin/sprawdz-poziom-wyszczepienia-mieszkancow-gmin")[390]
+page = paste(page, collapse = "")
 
-szczepienia_1 <- data.frame(colnames(szczepienia)) 
-szczepienia_2 <- data.frame(df = gsub("[\\]r[\\]n", ";", szczepienia_1$colnames.szczepienia.)) 
+# In this part I clean the data from the page and take only those strings that I need.
+page_1 <- gsub(x = page, '"', "") 
+page_1 <- sub(x = page_1, ".*w1_60_69;w1_70plus", "") 
+page_1 <- sub(x = page_1, ",fileName:.*", "")
+page_1 <- gsub(x  = page_1, "[\\]r[\\]n", ";")
+page_1 <- gsub(x  = page_1, ",", ".")
 
-write_csv(szczepienia_2, "/Users/mr.fox/Desktop/szczepienia_2.csv")
+# Now is the time to data into one table doing some more cleaning 
+page_df <- tibble(df = unlist(str_split(page_1, pattern = ";"))) %>% filter(df != ":") %>% filter(!row_number() %in% c(1, last(row_number()))) 
 
-df <- read.csv("/Users/mr.fox/Desktop/szczepienia_2.csv", sep = ";", dec = ",", header = TRUE, check.names = FALSE, row.names=NULL) %>% filter(row.names != ":") %>% dplyr::mutate(across(where(is.character), ~ na_if(.,"")))
+to <- nrow(page_df)
 
-wojewodztwo_nazwa <- df %>% select(df) %>% filter(!df == "NA")
-powiat_nazwa <- df %>% select(1) %>% filter(row_number() %in% seq(2,nrow(df), by = 12)) 
-gmina_nazwa <- df %>% select(1) %>% filter(row_number() %in% seq(3,nrow(df), by = 12)) 
-zaszczepieni_pelna_dawka <- df %>% select(1) %>% filter(row_number() %in% seq(4,nrow(df), by = 12)) %>% mutate(row.names = gsub(",", ".", row.names))
-przyrost_zaszczepionych_od_2021_08_01 <- df %>% select(1) %>% filter(row_number() %in% seq(5,nrow(df), by = 12)) %>% mutate(row.names = gsub(",", ".", row.names)) 
-liczba_ludnosci <- df %>% select(1) %>% filter(row_number() %in% seq(6,nrow(df), by = 12)) 
-zaszczepieni_pacjenci_jedna_dawka <- df %>% select(1) %>% filter(row_number() %in% seq(7,nrow(df), by = 12)) 
-zaszczepieni_pelna_dawka <- df %>% select(1) %>% filter(row_number() %in% seq(8,nrow(df), by = 12)) 
-grupa_wiekowa_12_19 <- df %>% select(1) %>% filter(row_number() %in% seq(9,nrow(df), by = 12)) 
-grupa_wiekowa_20_39 <- df %>% select(1) %>% filter(row_number() %in% seq(10,nrow(df), by = 12)) 
-grupa_wiekowa_40_59 <- df %>% select(1) %>% filter(row_number() %in% seq(11,nrow(df), by = 12)) 
-grupa_wiekowa_60_69 <- df %>% select(1) %>% filter(row_number() %in% seq(12,nrow(df), by = 12)) 
-grupa_wiekowa_70_plus <- df %>% select(1) %>% filter(row_number() %in% seq(12,nrow(df), by = 12)) 
-
-df <- bind_cols(grupa_wiekowa_60_69, grupa_wiekowa_70_plus)
+#  There must be a faster way of dealing with this data but I found this approach to be the most intuitive for me.
+wojewodztwo_nazwa <- page_df %>% filter(row_number() %in% seq(1,to, by = 13)) 
+powiat_nazwa <- page_df %>% filter(row_number() %in% seq(2,to, by = 13)) 
+gmina_nazwa <- page_df %>% filter(row_number() %in% seq(3,to, by = 13)) 
+zaszczepieni_pelna_dawka <- page_df %>% filter(row_number() %in% seq(4,to, by = 13)) 
+przyrost_zaszczepionych_od_2021_08_01 <- page_df %>% filter(row_number() %in% seq(5,to, by = 13))
+liczba_ludnosci <- page_df %>% filter(row_number() %in% seq(6,to, by = 13)) 
+zaszczepieni_pacjenci_jedna_dawka <- page_df %>% filter(row_number() %in% seq(7,to, by = 13)) 
+zaszczepieni_pelna_dawka <- page_df %>% filter(row_number() %in% seq(8,to, by = 13)) 
+grupa_wiekowa_12_19 <- page_df %>% filter(row_number() %in% seq(9,to, by = 13)) 
+grupa_wiekowa_20_39 <- page_df %>% filter(row_number() %in% seq(10,to, by = 13)) 
+grupa_wiekowa_40_59 <- page_df %>% filter(row_number() %in% seq(11,to, by = 13)) 
+grupa_wiekowa_60_69 <- page_df %>% filter(row_number() %in% seq(12,to, by = 13)) 
+grupa_wiekowa_70_plus <- page_df %>% filter(row_number() %in% seq(13,to, by = 13)) 
 
 df <- bind_cols(wojewodztwo_nazwa, powiat_nazwa, gmina_nazwa, zaszczepieni_pelna_dawka, przyrost_zaszczepionych_od_2021_08_01, liczba_ludnosci, zaszczepieni_pacjenci_jedna_dawka, zaszczepieni_pelna_dawka, grupa_wiekowa_12_19, grupa_wiekowa_20_39, grupa_wiekowa_40_59, grupa_wiekowa_60_69, grupa_wiekowa_70_plus)
 
+# Adding the correct names for columns
 colnames(df) <- c("wojewodztwo_nazwa", "powiat_nazwa", "gmina_nazwa", "zaszczepieni_pelna_dawka", "przyrost_zaszczepionych_od_2021_08_01", "liczba_ludnosci", "zaszczepieni_pacjenci_jedna_dawka", "zaszczepieni_pelna_dawka", "grupa_wiekowa_12_19", "grupa_wiekowa_20_39", "grupa_wiekowa_40_59", "grupa_wiekowa_60_69", "grupa_wiekowa_70_plus")
 
-df <- df %>% arrange(wojewodztwo_nazwa, powiat_nazwa, gmina_nazwa)
+# Sorting by name and adding a date. This date was chosen according to data found on source page. According to it the data is no longer updated after the 20th of March 2022.
+df <- df %>% arrange(wojewodztwo_nazwa, powiat_nazwa, gmina_nazwa) %>% mutate(stan_rekordu_na = as.Date("2022-03-20"))
 
-write.csv(df, "/Users/mr.fox/Github/COVID_wg_powiatow/Processed_data/szczepienia_wg_gmin.csv")
+# The data is now ready to be worked on
+write_csv(df, "/Users/mr.fox/Github/COVID_wg_powiatow/Processed_data/szczepienia_wg_gmin.csv")
 ```
-
-## Pierwsze próby (nieudolne) wprowadzenia pętli w  celu zastąpienia kodu z wierszów 40:52 w dokumencie.
-
-```{r}
-# cols <- c("powiat_nazwa", "gmina_nazwa", "zaszczepieni_pelna_dawka", "przyrost_zaszczepionych_od_2021_08_01", "liczba_ludnosci", "zaszczepieni_pacjenci_jedna_dawka", "zaszczepieni_pelna_dawka", "grupa_wiekowa_12_19", "grupa_wiekowa_20_39", "grupa_wiekowa_40_59", "grupa_wiekowa_60_69", "grupa_wiekowa_70_plus")
-# 
-# cols_num <- 2:13
-# 
-# for(x in 2:13) {
-#   y <- df %>% select(1) %>% filter(row_number() %in% seq(x,nrow(df), by = 12)) %>% dplyr::rename(cols = row.names) 
-#   print(y)
-# }
-```
-

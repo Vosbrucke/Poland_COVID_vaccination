@@ -7,7 +7,10 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "/Users/mr.fox/Github/COVID_wg_powiatow/Raw_data/danehistorycznepowiaty/")
 ```
+
+## Loading necessary packages
 
 ```{r}
 library(plyr)
@@ -15,25 +18,38 @@ library(dplyr)
 library(readr)
 library(tidyverse)
 library(purrr)
+library(downloader)
 ```
+
+## Downloading data from URL
 
 ``` {r}
 # https://datascienceplus.com/how-to-import-multiple-csv-files-simultaneously-in-r-and-create-a-data-frame/
-setwd("/Users/mr.fox/Github/COVID_wg_powiatow/Raw_data/danehistorycznepowiaty/")
+url <- "https://arcgis.com/sharing/rest/content/items/e16df1fa98c2452783ec10b0aea4b341/data"
+download(url, dest="/Users/mr.fox/Github/COVID_wg_powiatow/Raw_data/danehistorycznepowiaty/dataset.zip", mode="wb") 
+unzip("/Users/mr.fox/Github/COVID_wg_powiatow/Raw_data/danehistorycznepowiaty/dataset.zip", exdir = "./")
+```
 
+## Reading data with no date column
+
+When looking at the data I found that over time the data was subject to format changes. Date column was removed in 2020-12-24. The fix came only on 2021-01-27. This meant that I needed to add it manually and to limit the data.
+
+``` {r}
 files_1 <- list.files(path = "/Users/mr.fox/Github/COVID_wg_powiatow/Raw_data/danehistorycznepowiaty", pattern = ".csv")[31:65]
 
-df_no_date <- ldply(.data = files, .fun = function(i) {read.csv(i, header = TRUE, sep = ";", dec = ",", stringsAsFactors = FALSE, na.strings = c("", "NA")) })
+df_no_date <- ldply(.data = files_1, .fun = function(i) {read.csv(i, header = TRUE, sep = ";", dec = ",", stringsAsFactors = FALSE, na.strings = c("", "NA")) })
 
 date_column <- data_frame(stan_rekordu_na = rep(seq.Date(as.Date("2020-12-24")-1, as.Date("2021-01-27")-1, by = "day"), 381)) %>% arrange(stan_rekordu_na)
 
 df_date_1 <- cbind(df_no_date, date_column)
 ```
 
+## Reading data before format changes
+
+Once I managed to make those few csv format the same with the rest I found a different issue. After the 6th of Febrary 2022 the format changed once again now adding more data and also changing some column names. in code chunk below I work  to get the data compliant with those changes.
+
 ```{r}
 files_2 <- list.files(path = "/Users/mr.fox/Github/COVID_wg_powiatow/Raw_data/danehistorycznepowiaty",pattern = ".csv")[1:441][-(31:65)]
-
-setwd("/Users/mr.fox/Github/COVID_wg_powiatow/Raw_data/danehistorycznepowiaty/")
 
 df_date_2 <- ldply(.data = files_2, .fun = function(i) {read.csv(i, header = TRUE, sep = ";", dec = ",", stringsAsFactors = FALSE, na.strings = c("", "NA")) }) %>% mutate(stan_rekordu_na = as.Date(stan_rekordu_na))
 
@@ -51,16 +67,10 @@ df_1 <- rbind(df_date_1, df_date_2) %>%
   dplyr::arrange(stan_rekordu_na)
 ```
 
+## Reading most up-to-date data
+
 ```{r}
-install.packages("downloader")
-library(downloader)
-
-download(url, dest="/Users/mr.fox/Github/COVID_wg_powiatow/Raw_data/danehistorycznepowiaty/dataset.zip", mode="wb") 
-unzip ("/Users/mr.fox/Github/COVID_wg_powiatow/Raw_data/danehistorycznepowiaty/dataset.zip", exdir = "./")
-
 files_3 <- list.files(path = "/Users/mr.fox/Github/COVID_wg_powiatow/Raw_data/danehistorycznepowiaty", pattern = ".csv")[-c(1:442)]
-
-setwd("/Users/mr.fox/Github/COVID_wg_powiatow/Raw_data/danehistorycznepowiaty/")
 
 df_date_3 <- ldply(.data = files_3, .fun = function(i) {read.csv(i, header = TRUE, sep = ";", dec = ",", stringsAsFactors = FALSE, na.strings = c("", "NA")) }) %>% mutate(stan_rekordu_na = as.Date(stan_rekordu_na))
 
@@ -74,11 +84,15 @@ df_cor_3 <- df_date_3 %>%
 write_csv(x = df_cor_3, file = "/Users/mr.fox/Github/COVID_wg_powiatow/Processed_data/Zakażenia_wg_powiatów_od_2022-02-08.csv")
 ```
 
+## Joining all data
+
+Finally, the data is the same across all the tables (of course, there are some data missing before 2022-02-06 date which I cannot fill). Now I can join everything together.
+
 ```{r}
 df <- df_cor_3 %>% 
   select(-c(4,5,7,8)) %>%
-  rbind(df_1, df_2) %>% 
-  arrange(stan_rekordu_na)
+  rbind(df_1) %>% 
+  arrange(wojewodztwo, powiat_miasto, stan_rekordu_na)
 
 write.csv(x = df, file = "/Users/mr.fox/Github/COVID_wg_powiatow/Processed_data/Zakażenia_wg_powiatów.csv")
 ```
