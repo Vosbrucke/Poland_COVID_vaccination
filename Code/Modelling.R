@@ -214,13 +214,11 @@ jarque.bera.test(df$cumsum)
 
 panel <- pdata.frame(df, c("teryt" , "stan_rekordu_na"))
 
-# shp <- read_csv("/Users/mr.fox/Desktop/Github/COVID_wg_powiatow/Processed_data/SHP_county.csv")
-
-
+shp <- st_read("Processed_data/Shapefiles/SHP_county.shp")
 
 coordinates = st_coordinates(shp)
 
-w <- poly2nb(shp, row.names=shp$teryt, queen=FALSE)
+w <- poly2nb(shp, row.names=shp$Kod, queen= F)
 
 wm <- nb2mat(w, style='B')
 
