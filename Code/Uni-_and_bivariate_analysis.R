@@ -168,7 +168,7 @@ df %>%
     plot.background = element_rect(fill = "white", color = "white")
   )
 
-ggsave("Plots/Correlation_between_votes_cast_on_PiS_party_and_vaccinated_population.png", dpi = 900, width = 15, height = 15, units = "cm")
+ggsave("Plots/Correlation_between_votes_cast_on_PiS_party_and_vaccinated_population.png", dpi = 900, width = 20, height = 15, units = "cm")
 
 
 # Two-variate regression analysis for only significant factors
