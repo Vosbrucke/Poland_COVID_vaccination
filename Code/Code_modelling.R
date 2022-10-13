@@ -3,7 +3,7 @@ library(magrittr)
 library(tidyverse)
 
 # Read vaccination data
-df_vaccination <- read_csv("Processed_data/Percentage_of_people_fully_vaccinated.csv") %>% 
+df_vaccination <- read_csv("Processed_data/vaccination_rates_on_2022_03_20_county.csv") %>% 
   rename(Kod = teryt) %>% 
   mutate(Kod = paste0(Kod, "000"),
          Kod = as.integer(Kod))

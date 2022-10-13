@@ -52,7 +52,8 @@ df <- county_names %>%
   # Remove aggregated data for the whole Poland
   filter(teryt != "t00") %>%
   # Change NA to 0
-  dplyr::mutate(across(everything(), ~ifelse(is.na(.), 0, .)))
+  dplyr::mutate(across(everything(), ~ifelse(is.na(.), 0, .)),
+                stan_rekordu_na = as.Date(stan_rekordu_na, origin = as.Date("1970-01-01")))
 
 # Write data
 write.csv(df, "Processed_data/daily_infections.csv")

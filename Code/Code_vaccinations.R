@@ -50,10 +50,12 @@ df <- county_names %>%
   # Remove aggregated data for the whole Poland
   filter(teryt != "t00") %>%
   # Change NA to 0
-  dplyr::mutate(across(everything(), ~ifelse(is.na(.), 0, .)))
+  dplyr::mutate(across(everything(), ~ifelse(is.na(.), 0, .)),
+                stan_rekordu_na = as.Date(stan_rekordu_na))
 
 # Write data
 write.csv(df, "Processed_data/daily_vaccination.csv")
+
 
 
 # Web scraping data of the most recently available data on a level of vaccination rates in Poland by county
@@ -92,5 +94,32 @@ colnames(df) <- c("wojewodztwo_nazwa", "powiat_nazwa", "gmina_nazwa", "proc_zasz
 # According to it the data is no longer updated after the 20th of March 2022.
 df %<>% arrange(wojewodztwo_nazwa, powiat_nazwa, gmina_nazwa) %>% mutate(stan_rekordu_na = as.Date("2022-03-20"))
 
-# Write data
-write_csv(df, "Processed_data/vaccination_rates_on_2022_03_20.csv")
+# Transfer numerical data into integer class
+df %<>% 
+  dplyr::mutate(across(4:13, as.numeric))
+
+# Write data for gminy territorial division (smaller than the county one)
+write_csv(df, "Processed_data/vaccination_rates_on_2022_03_20_gminy.csv")
+
+
+# Replace special letters and add prefix to cities to make a name alike to population_voivodeships names.
+df %<>%
+  dplyr::mutate(
+    wojewodztwo_nazwa = str_replace_all(wojewodztwo_nazwa, c(ł = "l", ś = "s", ż = "z", ń = "n", ę = "e", ć = "c", ą = "a", ó = "o", ź = "z")),
+    powiat_nazwa = str_replace_all(powiat_nazwa, c(Ł = "L", Ś = "S", Ż = "Z", Ć = "C")),
+    powiat_nazwa = str_replace_all(powiat_nazwa, c(ł = "l", ś = "s", ż = "z", ń = "n", ę = "e", ć = "c", ą = "a", ó = "o", ź = "z")),
+    powiat_nazwa = ifelse(str_to_title(powiat_nazwa) == powiat_nazwa, paste0("M.", powiat_nazwa), powiat_nazwa)
+  )
+
+# Manupulate the data frame
+df %<>%
+  # Change teryt column format- remove 't' before the numbers
+  # mutate(teryt = str_remove(teryt, "[a-z]+")) %>%
+  dplyr::group_by(wojewodztwo_nazwa, powiat_nazwa) %>% 
+  # Calculate the cumulative sum for new infections
+  dplyr::summarise(zaszczepieni_pelna_dawka = sum(zaszczepieni_pelna_dawka),
+                   liczba_ludnosci = sum(liczba_ludnosci),
+                   proc_zaszczepieni_pelna_dawka = round(zaszczepieni_pelna_dawka / liczba_ludnosci * 100, 2))
+
+# Write data for county division (bigger than the gminy one)
+write_csv(df, "Processed_data/vaccination_rates_on_2022_03_20_county.csv")
