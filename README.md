@@ -11,9 +11,9 @@ Before moving into the comparison of the two variables let's do exploratory anal
 [chart]("Boxplot")
 
 
-The density plot confirms the big differences in the distribution between two variables. For most of the counties the vaccination rate is between 45% to 65% due to leptokurtic shape. A few counties have a rate below 40%. The maximum vaccination rate in a county was at a level of 76%. As for the votes for PiS commission there is a bimodal distribution- the first mode is at 40% and the second, smaller one, at around 63%.
+The historgam plot confirms the big differences in the distribution between two variables. For most of the counties the vaccination rate is between 45% to 65% and maintains leptokurtic shape. A few counties have a rate below 40%. The maximum vaccination rate in a county was at a level of 76%. As for the votes for PiS commission there is a bimodal distribution- the first mode is at 40% and the second, smaller one, at around 63%.
 
-[chart]("Density plot")
+[chart]("Histogram plot")
 
 
 Now let's examine the position values of individual counties on a map. Below we can see two maps- both of them examine the deviation from the given point. For the map on the left, with vaccination rates, the point is a mean while for the other one this point is 50%. In the case of vaccination rates we can see that people tend not to vaccinate on the East of Poland. In the case of the rest of the country the higher vaccination rates are on North-Western part of Poland. In the case of the political preferences we can clearly see the border sometimes even on voivodeship levels. 
@@ -34,6 +34,7 @@ Based on the exploratory analysis we can see that there is a difference in the d
 ## Two-factor analysis
 
 Thanks to the analysis of the correlation of the percentage of the population vaccinated by county and the support for the candidates of the Low and Justice (abbrevation PiS) electoral commission, it can be concluded that there is a negative strong (-0.74) correlation for the data. There is a strong correlation between the percentage of the vaccinated population and the support of candidates from the PiS election committee in 2019. This may mean that as support for PiS candidates increases, the percentage of the vaccinated population decreases or vice versa. 
+
 [chart](Correlation_between_votes_cast_on_PiS_party_and_vaccinated_population.png, "Correlation plot")
 
 

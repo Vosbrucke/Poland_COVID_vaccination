@@ -1,18 +1,13 @@
 # Multivariate analysis
-library(maptools)
 library(tidyverse)
-library(knitr)
 library(broom)
-library(broom.mixed)
 library(kableExtra)
 library(magrittr)
 library(ggtext)
 library(sf)
 library(spdep)
 library(spatialreg)
-library(rgdal)
-library(rgeos)
-library(glue)
+
 
 # Load shapefile for county
 shp <- st_read("Processed_data/Shapefiles/SHP_county.shp")
@@ -36,23 +31,13 @@ queen_neighbour = poly2nb (shp , queen = T)
 listw1 = nb2listw (queen_neighbour , style = "W" , zero.policy = TRUE)
 
 
-# Two-variate regression analysis for only significant factors
-formula_univariate <- as.formula(Fully_vaccinated_population ~
+# Bivariate regression analysis for only significant factors
+formula_bivariate <- as.formula(Fully_vaccinated_population ~
                          Votes_on_PiS_commission)
 
-reg1 <- lm(formula_univariate, data = df)
+reg1 <- lm(formula_bivariate, data = df)
+
 summary(reg1)
-
-tidy(reg1) %>% 
-  arrange(desc(estimate)) 
-# %>% 
-  # kbl(digits = 2, format = "pipe") %>% 
-  # kable_material(c("striped", "hover"))
-
-glance(reg1) 
-# %>% 
-  # kbl(digits = 2, format = "pipe") %>% 
-  # kable_material(c("striped", "hover"))
 
 # Check if a spatial dependency is present
 moran.test(df$Fully_vaccinated_population, listw1)
@@ -64,7 +49,7 @@ lm.LMtests(reg1, listw1, test= "all")
 
 
 # SLX
-reg2 = lmSLX(formula_univariate, data = df, listw1) 
+reg2 = lmSLX(formula_bivariate, data = df, listw1) 
 
 summary(reg2)
 
@@ -74,7 +59,7 @@ summary(impacts(reg2, listw=listw1, R=500), zstats = TRUE)
 
 
 # SAR
-reg3 <- lagsarlm(formula_univariate, data = df, listw1) 
+reg3 <- lagsarlm(formula_bivariate, data = df, listw1) 
 
 summary(reg3)
 
@@ -84,7 +69,7 @@ summary(impacts(reg3, listw=listw1, R=500), zstats = TRUE)
 
 
 # SEM
-reg4 <- errorsarlm(formula_univariate, data=df, listw1) 
+reg4 <- errorsarlm(formula_bivariate, data=df, listw1) 
 
 tidy(summary(reg4)) %>% arrange(estimate)
 
@@ -95,7 +80,7 @@ Hausman.test(reg4)
 
 
 # SDEM
-reg5 <- errorsarlm(formula_univariate, data = df, listw1, etype = "emixed")
+reg5 <- errorsarlm(formula_bivariate, data = df, listw1, etype = "emixed")
 
 summary(reg5)
 
@@ -105,7 +90,7 @@ summary(impacts(reg5, listw=listw1, R=500),zstats=TRUE)
 
 
 # SDM
-reg6 <- lagsarlm(formula_univariate, data = df, listw1, type="mixed") 
+reg6 <- lagsarlm(formula_bivariate, data = df, listw1, type="mixed") 
 
 summary(reg6)
 
@@ -115,7 +100,7 @@ summary(impacts(reg6,listw=listw1,R=500),zstats=TRUE)
 
 
 # MANSKI
-reg7 <- sacsarlm(formula_univariate, data = df, listw1, type="sacmixed") 
+reg7 <- sacsarlm(formula_bivariate, data = df, listw1, type="sacmixed") 
 
 summary(reg7)
 
@@ -125,7 +110,7 @@ summary(impacts(reg7,listw=listw1,R=500),zstats=TRUE)
 
 
 # SARAR
-reg8 <- sacsarlm(formula_univariate, data = df, listw1, type="sac") 
+reg8 <- sacsarlm(formula_bivariate, data = df, listw1, type="sac") 
 
 summary(reg8)
 
@@ -147,8 +132,6 @@ glance(summary(reg5)) %>%
 summary(impacts(reg5,listw=listw1,R=500),zstats=TRUE)
 
 # Pseudo r square calculations for each models
-1-(reg2$SSE/(var(df$Fully_vaccinated_population)*(length(df$Fully_vaccinated_population)-1)))
-
 1-(reg3$SSE/(var(df$Fully_vaccinated_population)*(length(df$Fully_vaccinated_population)-1)))
 
 1-(reg4$SSE/(var(df$Fully_vaccinated_population)*(length(df$Fully_vaccinated_population)-1)))
@@ -197,6 +180,7 @@ formula <- as.formula(Fully_vaccinated_population ~
                         Health_expenditure_per_1_person)
 
 reg1 <- lm(formula, data = df)
+
 summary(reg1)
 
 # Lagrange Multiplier diagnostics
@@ -410,8 +394,6 @@ glance(summary(reg4)) %>%
   kable_material(c("striped", "hover"))
 
 # Pseudo r square calculations for each models
-1-(reg2$SSE/(var(df$Fully_vaccinated_population)*(length(df$Fully_vaccinated_population)-1)))
-
 1-(reg3$SSE/(var(df$Fully_vaccinated_population)*(length(df$Fully_vaccinated_population)-1)))
 
 1-(reg4$SSE/(var(df$Fully_vaccinated_population)*(length(df$Fully_vaccinated_population)-1)))
