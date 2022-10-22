@@ -2,11 +2,12 @@
 
 ## Project objectives
 
-The project aims to discuss and evaluate the impact of the factors on the rate of fully vaccinated population. The project objective is to answer the question whether voting preferences had an impact on the willingness to vaccinate and whether there is a correlation between the share of the population vaccinated with two doses and the number of deaths.
+The project aims to discuss and evaluate the impact of the factors on the rate of fully vaccinated population. The purpose of the project is to answer the question whether voting preferences had an impact on the willingness to vaccinate and whether there is a correlation between the share of the population vaccinated with two doses and other factors.
+
 
 ## Univariate analysis
 
-Before moving into the comparison of the two variables let's do exploratory analysis for both of those factors separate. From the first plot we can draw a few conclusions. The first is that values of vaccination rates are much closer to each other than the voting for PiS commission during 2019 Sejm and Senat elections. The mean for the vaccination rate is equal to 54.7% while the standard deviation is only at 7 percent points. For elections the mean is 48% and the standard deviation is at 11.7 percent points. The coefficient of variability is equal to 12.9% for vaccination rates which is within the low range and 24.5% for factor regarding votes preferences. We can clearly see from the plot that the data for votes is more dispersed. As our goal is to examine the variability of fully vaccinated population we see here that, although there is a variance, it is not very big. There are however some outliers which should be interesting to inspect.
+Before moving into the comparison of the two variables let’s do exploratory analysis for both of those factors separate. From the first plot we can draw a few conclusions. The first is that values of vaccination rates are much closer to each other than the voting for PiS commission during 2019 Sejm and Senat elections. The mean for the vaccination rate is equal to 54.7% while the standard deviation is only at 7 percent points. For elections the mean is 48% and the standard deviation is at 11.7 percent points. The coefficient of variability is equal to 12.9% for vaccination rates which is within the low range and 24.5% for factor regarding votes preferences. We can clearly see from the plot that the data for votes is more dispersed. As our goal is to examine the variability of fully vaccinated population we see here that, although there is a variance, it is not very big. There are however some outliers which should be interesting to inspect.
 <p align="center">
 <img src="https://github.com/Vosbrucke/COVID_wg_powiatow/blob/main/Plots/Boxplot_univariate_analysis.png" width="750">
 </p>
@@ -16,16 +17,16 @@ The historgam plot confirms the big differences in the distribution between two 
 <img src="https://github.com/Vosbrucke/COVID_wg_powiatow/blob/main/Plots/Histogram_univariate_analysis.png" width="750">
 </p>
 
-Now let's examine the position of individual counties values on a map. Below we can see two maps- both of them examine the deviation from the given point. For the map on the left, with vaccination rates, the point is a mean while for the other one this point is 50%. In the case of vaccination rates we can see that people tend not to vaccinate on the East of Poland. In the case of the rest of the country the higher vaccination rates are on North-Western part of Poland. In the case of the political preferences we can clearly see the border sometimes even on voivodeship levels. 
+Now let’s examine the position of individual counties values on a map. Below we can see two maps- both of them examine the deviation from the given point. For the map on the left, with vaccination rates, the point is a mean while for the other one this point is 50%. In the case of vaccination rates we can see that people tend not to vaccinate on the East of Poland. In the case of the rest of the country the higher vaccination rates are on North-Western part of Poland. In the case of the political preferences we can clearly see the border sometimes even on voivodeship levels.
 <p align="center">
 <img src="https://github.com/Vosbrucke/COVID_wg_powiatow/blob/main/Plots/Percentage_of_people_fully_vaccinated.png" width="500"> <img src="https://github.com/Vosbrucke/COVID_wg_powiatow/blob/main/Plots/Percentage_of_votes_on_PiS.png" width="500"> 
 </p>
 
 
-Those maps show a pattern for regions of Eastern Poland where there was a lower percentage of the population fully vaccinated against COVID-19 and a higher percentage of votes for candidates from the PiS election committee. 
+Those maps show a pattern for regions of Eastern Poland where there was a lower percentage of the population fully vaccinated against COVID-19 and a higher percentage of votes for candidates from the PiS election committee.
 
 
-The other way to visualize the differences can be done looking at the map of winning party. Here we can clearly see the political barrier on county level in Poland. 
+The other way to visualize the differences can be done looking at the map of winning party. Here we can clearly see the political barrier on county level in Poland.
 <p align="center">
 <img src="https://github.com/Vosbrucke/COVID_wg_powiatow/blob/main/Plots/PiS_vs_opposition.png" width="750">
 </p>
@@ -35,7 +36,7 @@ Based on the exploratory analysis we can see that there is a difference in the d
 
 ## Two-factor analysis
 
-Thanks to the analysis of the correlation of the percentage of the population vaccinated by county and the support for the candidates of the Low and Justice (abbrevation PiS) electoral commission, it can be concluded that there is a negative strong (-0.74) correlation for the data. There is a strong correlation between the percentage of the vaccinated population and the support of candidates from the PiS election committee in 2019. This may mean that as support for PiS candidates increases, the percentage of the vaccinated population decreases or vice versa. 
+Thanks to the analysis of the correlation of the percentage of the population vaccinated by county and the support for the candidates of the Low and Justice (abbrevation PiS) electoral commission, it can be concluded that there is a negative strong (-0.74) correlation for the data. There is a strong correlation between the percentage of the vaccinated population and the support of candidates from the PiS election committee in 2019. This may mean that as support for PiS candidates increases, the percentage of the vaccinated population decreases or vice versa.
 <p align="center">
 <img src="https://github.com/Vosbrucke/COVID_wg_powiatow/blob/main/Plots/Correlation_between_votes_cast_on_PiS_party_and_vaccinated_population.png" width="650">
 </p>
@@ -71,7 +72,7 @@ In order to better understand the dataset we can perform spatial regression anal
 |lag.Votes_on_PiS_commission  |    -0.078464|     0.037388|   -2.0986|   0.03585|
 
 
-The SDEM model explains 70% of the variability of percentage of the population vaccinated by county. As we can see applying a model with spatial effects drastically improved the fit of the model from 55% to 70%. 
+The SDEM model explains 70% of the variability of percentage of the population vaccinated by county. As we can see applying a model with spatial effects drastically improved the fit of the model from 55% to 70%.
 
 | r.squared|     AIC|     BIC| deviance|   logLik| nobs|
 |---------:|-------:|-------:|--------:|--------:|----:|
@@ -84,9 +85,9 @@ In terms of visual representation of the two variables the bivariate plot was us
 
 ## Multivariate analysis
 
-Further analysis include adding further variables in order to better understand the distribution differences of the vaccination rates.
+Further analysis includes adding further variables in order to better understand the distribution differences of the vaccination rates.
 
-The significance of the variable and room for improvement in r square area determined the willingness to learn about other factors influencing the percentage of the vaccinated population. For this purpose, the model was extended with additional variables, the selection of which was limited by the availability of data on the poviat cross-section. Analyzed factors:
+The significance of the variable and room for improvement in r square area determined the willingness to learn about other factors influencing the percentage of the vaccinated population. For this purpose, the model was extended with additional variables, the selection of which was limited by the availability of data on the poviat cross-section. Analyzed factors: 
 - Feminization index - are counties with women more or less willing to vaccinate?
 - Votes on PiS commission (%) - does political preference affect vaccinations?
 - Working age population share - is working class more or less ready to vaccinate?
@@ -95,15 +96,14 @@ The significance of the variable and room for improvement in r square area deter
 - Higher education population share - counties with higher share of population with high education should be more willing to vaccinate due to wider knowledge.
 - Health expenditure per 1 person - is health expenditure in county relevant for readiness to vaccinate? More expenditure should positively affect people belief in science.
 
-First let's examine the correlation between the variables. Here we can see that the variables are not strongly correlated to each other. The correlation that is most important in the terms of this research is between the vaccination rates and other factors. There we can see that Health expenditure per 1 person, Working age population share, Votes on PiS commission (%) are negatively correlated although in different strength. The first two variables have low negative correlation. The other factors (Feminization index, Doctors and staff per 10 thousand people in 2020, Population per 1 square km in 2021, Higher education population share) moderately positively correlated. One factor that can cause problems is the correlation between Feminization index and Working age population share which are strongly correlated to each other. It is indeed a natural reason- the more women enter the job market the more working age population share there is in a population. 
+First let’s examine the correlation between the variables. Here we can see that the variables are not strongly correlated to each other. The correlation that is most important in the terms of this research is between the vaccination rates and other factors. There we can see that Health expenditure per 1 person, Working age population share, Votes on PiS commission (%) are negatively correlated although in different strength. The first two variables have low negative correlation. The other factors (Feminization index, Doctors and staff per 10 thousand people in 2020, Population per 1 square km in 2021, Higher education population share) moderately positively correlated. One factor that can cause problems is the correlation between Feminization index and Working age population share which are strongly correlated to each other. It is indeed a natural reason- the more women enter the job market the more working age population share there is in a population.
 <p align="center">
 <img src="https://github.com/Vosbrucke/COVID_wg_powiatow/blob/main/Plots/Correlation_plot_multivariate.png" width="750">
 </p>
+
 ### Linear regresion analysis
 
-Now, when we know the correlation for many variables we can model linear regression using all factors.
-
-This is the result of a regression analysis before making insignificant factors reduction:
+Now, when we know the correlation for many variables, we can model linear regression using all factors. This is the result of a regression analysis before making insignificant factors reduction:
 
 |term                                             | estimate| std.error| statistic| p.value|
 |:------------------------------------------------|--------:|---------:|---------:|-------:|
@@ -117,20 +117,20 @@ This is the result of a regression analysis before making insignificant factors 
 |Working_age_population_share                     |    -1.85|      0.22|     -8.22|    0.00|
 
 
-The summary of model-level statistics were shown in a table below. We can see that a model consisting of all the variables explains 65% of the variability of the vaccination rates among counties. 
+The summary of model-level statistics was shown in a table below. We can see that a model consisting of all the variables explains 65% of the variability of the vaccination rates among counties.
 
 | r.squared| adj.r.squared| sigma| statistic| p.value| df|   logLik|     AIC|     BIC| deviance| df.residual| nobs|
 |---------:|-------------:|-----:|---------:|-------:|--:|--------:|-------:|-------:|--------:|-----------:|----:|
 |      0.65|          0.65|  4.21|    100.41|       0|  7| -1081.27| 2180.53| 2215.99|  6589.06|         372|  380|
 
 
-Proceeding further in the regression analysis in the study, the decision was made to remove the variables with a p value below 5%. Using stepwise regression reduction, the following variables were proved to be significant:
+Proceeding further in the regression analysis in the study, the decision was made to remove the variables with a p value below 5%. Using stepwise regression reduction, the following variables were proved to be significant: 
 - Feminization index
 - Working age population share
 - Votes on PiS commission (%)
 - Higher education population share
 
-The interesting part is also polish society reluctance to medical staff recommendations. As the research proved, the variables: doctors and staff per 10 thousand people in 2020, population per 1 square km in 2021, health expenditure per 1 person proved not to be statistically significant. 
+The interesting part is also polish society reluctance to medical staff recommendations. As the research proved, the variables: doctors and staff per 10 thousand people in 2020, population per 1 square km in 2021, health expenditure per 1 person proved not to be statistically significant.
 
 The result of a regression analysis for those factors is shown below in a table.
 
@@ -153,7 +153,7 @@ The visual presentation of the quality of the model shows there are still more f
 <img src="https://github.com/Vosbrucke/COVID_wg_powiatow/blob/main/Plots/The_actual_and_modelled_vaccination_rate_OLS.png" width="650">
 </p>
 
-The summary of model-level statistics does not show any change in quality of the model. Model still predicts 65% of the percentage of the vaccinated population. The rest 35% is a result of other, random factors. Lack of access to more detailed data on media coverage, people characteristics makes it harder and more time consuming to further improve the model. 
+The summary of model-level statistics does not show any change in quality of the model. Model still predicts 65% of the percentage of the vaccinated population. The rest 35% is a result of other, random factors. Lack of access to more detailed data on media coverage, people characteristics makes it harder and more time consuming to further improve the model.
 
 | r.squared| adj.r.squared| sigma| statistic| p.value| df|   logLik|     AIC|     BIC| deviance| df.residual| nobs|
 |---------:|-------------:|-----:|---------:|-------:|--:|--------:|-------:|-------:|--------:|-----------:|----:|
@@ -171,7 +171,7 @@ Statistic interpretation of model:
 The verification decision is as follows:
 At the significance level of 𝛼 = 0.05, the 𝐻0 is rejected with the parameters being irrelevant. We have the right to believe that at least one structural parameter 𝛼1, 𝛼2, 𝛼3 is statistically significant, i.e. at least one explanatory variable (feminization index, working age population share, votes on PiS commission (%), higher education population share) has a statistically significant impact on the dependent variable 𝑌 (vaccination rate).
 
-Based on the chart we can also provide one more statistically important insight. We can already have some expectations about the presence of residual homoscedasticity looking at it but to confirm that there is an absence of heteroscedasticity we can use Breusch-Pagan test. Performing the test for heteroscedasticity among the residuals showed that there is indeed a homoscedasticity of residuals. The p-value is not significant (i.e., > 0.05), so we do not reject the null hypothesis on equal residual variance distribution. Therefore, we assume that the residuals are homoscedastic. This means that we can assume that the model results are reliable. 
+Based on the chart we can also provide one more statistically important insight. We can already have some expectations about the presence of residual homoscedasticity looking at it but to confirm that there is an absence of heteroscedasticity we can use Breusch-Pagan test. Performing the test for heteroscedasticity among the residuals showed that there is indeed a homoscedasticity of residuals. The p-value is not significant (i.e., > 0.05), so we do not reject the null hypothesis on equal residual variance distribution. Therefore, we assume that the residuals are homoscedastic. This means that we can assume that the model results are reliable.
 
 
 ### Spatial regresion analysis
@@ -180,10 +180,10 @@ The chart alone that we saw before, however, does not provide enough details wit
 <p align="center">
 <img src="https://github.com/Vosbrucke/COVID_wg_powiatow/blob/main/Plots/Residuals_actual_vs_model_distribution_using_OLS.png" width="650">
 </p>
-As we can see the spatial distribution is not connected with political preferences so we can conclude that there are other factors, not related with political division, that would need to be considered in order to provide more insight into the differences between vaccination rates. To further delve into the topic it is worth conducting the new spatial regression analysis. Using moran's test for the residuals of OLS model there is a significant spatial dependency (p value < 0.05). This means that differences between counties willingness to vaccinate are not a result of political factors (at least division ones) but unknown ones. We can also conclude from the result that there is a low to medium clustering of similar values (0.38) which suggests that the missing factors can be found using spatial regression models. Monte-Carlo simulation of Moran I also proved that the spatial dependency is indeed significant. 
+As we can see the spatial distribution is not connected with political preferences so we can conclude that there are other factors, not related with political division, that would need to be considered in order to provide more insight into the differences between vaccination rates. To further delve into the topic it is worth conducting the new spatial regression analysis. Using moran’s test for the residuals of OLS model there is a significant spatial dependency (p value < 0.05). This means that differences between counties willingness to vaccinate are not a result of political factors (at least division ones) but unknown ones. We can also conclude from the result that there is a low to medium clustering of similar values (0.38) which suggests that the missing factors can be found using spatial regression models. Monte-Carlo simulation of Moran I also proved that the spatial dependency is indeed significant.
 
 
-Applying linear regression with all variables and conducting moran's test it showed that the vaccination rate can be spatially explained using provided variables. It means that the missing factors can be found and are not strictly random effects. Lagrange multiplier diagnostics for spatial dependence revealed that the model with the best fit should be the Spatial Error Model (SEM) due to lowest p value. Further research, using stepwise regression factor reduction, the significant variables identified by spatial analysis proved to be the same used in linear regression:
+Applying linear regression with all variables and conducting moran’s test it showed that the vaccination rate can be spatially explained using provided variables. It means that the missing factors can be found and are not strictly random effects. Lagrange multiplier diagnostics for spatial dependence revealed that the model with the best fit should be the Spatial Error Model (SEM) due to lowest p value. Further research, using stepwise regression factor reduction, the significant variables identified by spatial analysis proved to be the same used in linear regression:
 - Feminization index
 - Working age population share
 - Votes on PiS commission (%)
@@ -200,12 +200,12 @@ Selection of the model was correct as Akaike Information Criterion (AIC) confirm
 |Votes_on_PiS_commission                   |    -0.35|      0.02|    -15.17|       0|
 |Working_age_population_share              |    -1.59|      0.20|     -7.81|       0|
 
-The visual presentation on the chart of the quality of the model shows there are still more factors that shaped the vaccination rates together with lambda factor. 
+The visual presentation on the chart of the quality of the model shows there are still more factors that shaped the vaccination rates together with lambda factor.
 <p align="center">
 <img src="https://github.com/Vosbrucke/COVID_wg_powiatow/blob/main/Plots/The_actual_and_modelled_vaccination_rate_SEM.png" width="750">
 </p>
 
-The Spatial Error Model explains 76% of the variability of percentage of the population vaccinated by county. As we can see applying a model with spatial effects improved the fit of the model although there is still 24% of unexplained differences between individual counties. The most statistically important variable was 'Votes on PiS commission'. The Wald Statistics Test confirms that the SEM is a better model than OLS model (Wald test p value < 0.05).
+The Spatial Error Model explains 76% of the variability of percentage of the population vaccinated by county. As we can see applying a model with spatial effects improved the fit of the model although there is still 24% of unexplained differences between individual counties. The most statistically important variable was ‘Votes on PiS commission’. The Wald Statistics Test confirms that the SEM is a better model than OLS model (Wald test p value < 0.05).
 
 | r.squared|     AIC|     BIC| deviance|   logLik| nobs|
 |---------:|-------:|-------:|--------:|--------:|----:|
@@ -214,13 +214,15 @@ The Spatial Error Model explains 76% of the variability of percentage of the pop
 <img src="https://github.com/Vosbrucke/COVID_wg_powiatow/blob/main/Plots/Residuals_actual_vs_model_distribution_using_SEM.png" width="750">
 </p>
 
-Spatial distribution of the residuals shown below does not present spatial dependency. We can therefore confirm that after applying spatial regression analysis the rest of unknown factors can not be found in spatial regression. The missing part (24%) are the factors that do not impact vaccination rate spatially but, without other data, randomly. In order to enable comparison between the OLS and SEM the legend scale limits for SEM residuals distribution on a map were changed to the ones used on OLS map. The extreme values for SEM residuals were -15.5 and 12.9 while for OLS these were -22.2 and 14.5. Increase in R square shows the improvement when using spatial model. 
+Spatial distribution of the residuals shown below does not present spatial dependency. We can therefore confirm that after applying spatial regression analysis the rest of unknown factors can not be found in spatial regression. The missing part (24%) are the factors that do not impact vaccination rate spatially but, without other data, randomly. In order to enable comparison between the OLS and SEM the legend scale limits for SEM residuals distribution on a map were changed to the ones used on OLS map. The extreme values for SEM residuals were -15.5 and 12.9 while for OLS these were -22.2 and 14.5. Increase in R square shows the improvement when using spatial model.
 
 
 ## Conclusions
 
-Based on the verification activities carried out regarding both the economic verification of the model and the statistical verification, it can be concluded that the OLS model provides moderate fit (66%) and the model with spatial effects proved to explain 76% of variability. The research gave insight into what drives and what does not affect the tendency to vaccinate. As the researched proved the significant variables were: feminization index, working age population share, votes on PiS commission (%), higher education population share. Only the last factor positively impacted the vaccination rate in the county. ALl the other factors worked the other way round. The increase of faminization rate, working age population share and higher education population share influenced decrease of the vaccination rate. The most important role in explaining the variability of the vaccination rate had spatial distibution of votes on PiS commision. This variable itself explained 55% of the variability of the vaccination rate when applied using OLS model and 70% using SDEM. The fact that vaccination rates are so heavily linked to political preference is a fascinating result implying shared behaviors among the voters on governing party Law and Justice (PiS). By itself the result may be terrific, however one more thing should be taken into consideration. While it is true that there is a strong negative correlation between the political preference and vaccination rates the distribution of the vaccination rates is close to the mean and the coefficient of deviation is relatively small. This means that although the political preference is important, it does not result in very big discrepancies between counties. 
+Based on the verification activities carried out regarding both the economic verification of the model and the statistical verification, it can be concluded that the OLS model provides moderate fit (66%) and the model with spatial effects proved to explain 76% of variability. The research gave insight into what drives and what does not affect the tendency to vaccinate. As the researched proved the significant variables were: feminization index, working age population share, votes on PiS commission (%), higher education population share. Only the last factor positively impacted the vaccination rate in the county. All the other factors worked the other way round. The increase of faminization rate, working age population share and higher education population share influenced decrease of the vaccination rate.
 
-A negative correlation is a result partly of the message governing party Law and Justice (PiS) passed in its public media outlets. On the one hand the social campaigns were encouraging vaccination by using famous people images while on the other hand giving contradictory or unclear instructions to health recommendations. We can see effects of this situation on the bivariate map of the vaccination rates and votes on PiS commission.
-
+ The most important role in explaining the variability of the vaccination rate had spatial distibution of votes on PiS commision. This variable itself explained 55% of the variability of the vaccination rate when applied using OLS model and 70% using SDEM. The fact that vaccination rates are so heavily linked to political preference is a fascinating result implying shared behaviors among the voters on governing party Law and Justice (PiS). By itself the result may be terrific, however one more thing should be taken into consideration. While it is true that there is a strong negative correlation between the political preference and vaccination rates the distribution of the vaccination rates is close to the mean and the coefficient of deviation is relatively small. This means that although the political preference is important, it does not result in very big discrepancies between counties.
+ 
+ A negative correlation is a result partly of the message governing party Law and Justice (PiS) passed in its public media outlets. On the one hand the social campaigns were encouraging vaccination by using famous people images while on the other hand giving contradictory or unclear instructions to health recommendations. We can see effects of this situation on the bivariate map of the vaccination rates and votes on PiS commission.
+ 
 There is still a pending question why is the mean of vaccination rates so low. This question should be, however, a subject of a different research.
